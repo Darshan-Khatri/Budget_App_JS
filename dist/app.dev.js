@@ -137,6 +137,10 @@ var UIController = function () {
 
       document.querySelector(element).insertAdjacentHTML('beforeend', newHtml);
     },
+    deleteListItem: function deleteListItem(selectorID) {
+      var el = document.getElementById(selectorID);
+      el.parentNode.removeChild(el);
+    },
     clearFields: function clearFields() {
       var fields, fieldsArr;
       fields = document.querySelectorAll(DOM_strings.inputDescription + ',' + DOM_strings.inputValue); //Output of 'querySelectorAll' is LIST (NOT array) so we have converted list into array and store copy of array in FiledArr.
@@ -216,7 +220,10 @@ var controller = function (budgetCtrl, UICtrl) {
       ID = +splitID[1]; //1. Delete the item from data structure.
 
       budgetCtrl.deleteItem(type, ID); //2. Delete items from the UI.
-      //3. Update and show the new budget.
+
+      UICtrl.deleteListItem(itemID); //3. Update and show the new budget.
+
+      updateBudget();
     }
   };
 
