@@ -1,6 +1,6 @@
 "use strict";
 
-// Budget controller
+// Budget controller: This is internal calculation and algorithm program.
 var budgetController = function () {
   var Expense = function Expense(id, description, value) {
     this.id = id;
@@ -49,12 +49,23 @@ var budgetController = function () {
         newItem = new Expense(ID, des, val);
       } else if (type === 'inc') {
         newItem = new Income(ID, des, val);
-      } //push it into our data structure.
+      } //push it into our data structure. 
 
 
       data.allItems[type].push(newItem); //return element
 
       return newItem;
+    },
+    deleteItem: function deleteItem(type, id) {
+      var ids, index;
+      ids = data.allItems[type].map(function (current) {
+        return current.id;
+      });
+      index = ids.indexOf(id);
+
+      if (index !== -1) {
+        data.allItems[type].splice(index, 1);
+      }
     },
     calculateBudget: function calculateBudget() {
       // calculate total income and expenses
@@ -82,7 +93,7 @@ var budgetController = function () {
     }
   };
 }();
-/****UIController********************************************************************************************************************************* */
+/****UIController: ALL UI related program************************************************************************************************************************* */
 
 
 var UIController = function () {
@@ -96,7 +107,8 @@ var UIController = function () {
     budgetLabel: '.budget__value',
     incomeLabel: '.budget__income--value',
     expensesLabel: '.budget__expenses--value',
-    percentageLabel: '.budget__expenses--percentage'
+    percentageLabel: '.budget__expenses--percentage',
+    container: '.container'
   };
   return {
     getInput: function getInput() {
@@ -112,10 +124,10 @@ var UIController = function () {
 
       if (type === 'inc') {
         element = DOM_strings.incomeContainer;
-        html = '<div class="item clearfix" id="income-%id%"><div class="item__description">%description%</div><div class="right clearfix"><div class="item__value">%value%</div><div class="item__delete"><button class="item__delete--btn"><i class="ion-ios-close-outline"></i></button></div></div></div>';
+        html = '<div class="item clearfix" id="inc-%id%"><div class="item__description">%description%</div><div class="right clearfix"><div class="item__value">%value%</div><div class="item__delete"><button class="item__delete--btn"><i class="ion-ios-close-outline"></i></button></div></div></div>';
       } else if (type === 'exp') {
         element = DOM_strings.expensesContainer;
-        html = '<div class="item clearfix" id="expense-%id%"><div class="item__description">%description%</div><div class="right clearfix"><div class="item__value">%value%</div><div class="item__percentage">21%</div><div class="item__delete"><button class="item__delete--btn"><i class="ion-ios-close-outline"></i></button></div></div></div>';
+        html = '<div class="item clearfix" id="exp-%id%"><div class="item__description">%description%</div><div class="right clearfix"><div class="item__value">%value%</div><div class="item__percentage">21%</div><div class="item__delete"><button class="item__delete--btn"><i class="ion-ios-close-outline"></i></button></div></div></div>';
       } //Replace the placeholder text with some actual data
 
 
@@ -151,7 +163,7 @@ var UIController = function () {
     }
   };
 }(); //******************************************************************************************************************************* */
-//GLOBAL APP CONTROLLER
+//GLOBAL APP CONTROLLER: It's module which combines and run, UI and Data-structure/Algorithm module.
 
 
 var controller = function (budgetCtrl, UICtrl) {
@@ -163,6 +175,7 @@ var controller = function (budgetCtrl, UICtrl) {
         ctrlAddItem();
       }
     });
+    document.querySelector(DOM.container).addEventListener('click', ctrlDeleteItem);
   };
 
   var updateBudget = function updateBudget() {
@@ -188,6 +201,22 @@ var controller = function (budgetCtrl, UICtrl) {
       UICtrl.clearFields(); //5. Calculate and update budget.
 
       updateBudget();
+    }
+  };
+
+  var ctrlDeleteItem = function ctrlDeleteItem(event_click) {
+    var itemID, splitID, type, ID;
+    itemID = event_click.target.parentNode.parentNode.parentNode.parentNode.id;
+
+    if (itemID) {
+      //inc-1 or exp-3
+      splitID = itemID.split('-'); //outPut:- ["inc","1"]
+
+      type = splitID[0];
+      ID = +splitID[1]; //1. Delete the item from data structure.
+
+      budgetCtrl.deleteItem(type, ID); //2. Delete items from the UI.
+      //3. Update and show the new budget.
     }
   };
 
